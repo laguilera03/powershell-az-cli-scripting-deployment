@@ -23,15 +23,15 @@ az configure --default group="$rgName"
 $vmData="$(az vm create -n "$vmName" --size "$vmSize" --image "$vmImage" --admin-username "$vmAdminUsername" --admin-password $vmAdminPassword --authentication-type password --assign-identity --query "[ identity.systemAssignedIdentity, publicIpAddress ]")"
 
 # TODO: capture the VM systemAssignedIdentity
-$vmID="$(az vm show --query "identity.systemAssignedIdentity")"
-$vmIP="$(az vm show --query "publicIpAddress")"
+$vmID="$(az vm show --query "identity.principalId")"
+$vmIP="$(az vm show --query "publicIps")"
 
 # TODO: open vm port 443
 az vm open-port --port 443
 az configure --default vm="$vmName"
 
 # provision KV
-az keyvault create -n "$kvName" --enable-soft-delete false --enabled-for-deployment true
+az keyvault create -n $kvName --enable-soft-delete false --enabled-for-deployment true
 
 # TODO: create KV secret (database connection string)
 az keyvault secret set --vault-name "$kvName" -n "$kvSecretName" --value "$kvSecretValue"
